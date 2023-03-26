@@ -1,3 +1,12 @@
-datadir_pth: '..\..\Data\neu_m044q5210\KRI-16Devices-RawData\2ft'
-base_mmapdir_pth: '..\..\MMAPData'
-runid: 'run1'
+
+# Data creation parameters 
+datadir_pth: '/mnt/u/ga_tech/cs7643_DL_rf_fingerprint_final_project/neu_m044q5210/KRI-16Devices-RawData/2ft'
+base_mmapdir_pth: '/mnt/u/ga_tech/cs7643_DL_rf_fingerprint_final_project/neu_m044q5210/MMapData'
+runid: 'run1_initial'
+
+# Dataset parameters 
+batch_size: 1024 
+
+
+# Training parameters
+num_workers: 0 

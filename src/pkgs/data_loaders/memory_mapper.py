@@ -56,10 +56,9 @@ class SigMFDataMMapper(object):
     def init_datafile_prefix_list(self):
 
         datafile_prefix_list =\
-            [os.path.split(elem)[1] for elem in
-             glob(os.path.join(self.parameters["datadir_pth"],
-                               "*" + self.parameters["runid"] +
-                               ".sigmf-data"))]
+            os.listdir(self.parameters['datadir_pth'])
+        
+        datafile_prefix_list = [os.path.join(self.parameters['datadir_pth'], file) for file in datafile_prefix_list if "sigmf-data" in file]
 
         datafile_prefix_list =\
             [elem.replace(".sigmf-data", "") for elem in datafile_prefix_list]
@@ -83,7 +82,11 @@ class SigMFDataMMapper(object):
             os.path.join(self.parameters["datadir_pth"],
                          "*" + self.parameters["runid"] + ".sigmf-meta")
 
-        for metafile_pth in glob(glob_arg):
+        datafile_prefix_list =\
+            os.listdir(self.parameters['datadir_pth'])
+        metafile_list = [os.path.join(self.parameters['datadir_pth'], file) for file in datafile_prefix_list if "sigmf-meta" in file]
+
+        for metafile_pth in metafile_list: # glob(glob_arg):
 
             key = os.path.split(metafile_pth)[1].replace(".sigmf-meta", "")
 
@@ -93,7 +96,7 @@ class SigMFDataMMapper(object):
                 key2 = "annotations"
                 key3 = "core:sample_count"
                 
-                metadata = json.load(h_file)
+                metadata = json.loads(h_file.read())
 
                 self.nsamples_per_file[key] =\
                     int(metadata[key1][key2][0][key3] / 128)
@@ -143,7 +146,7 @@ class SigMFDataMMapper(object):
     def init_mmap_file_pth(self,
                            datasplit,
                            filetype):
-        
+
         return os.path.join(self.mmap_datadir_pth,
                             self.mmap_data_prefix + "_" +
                             datasplit + f"_{filetype}.mmap")
@@ -153,7 +156,7 @@ class SigMFDataMMapper(object):
         for datasplit in self.datasplit_idx.keys():
 
             total_datasplit_samples = self.total_datasplit_nsamples[datasplit]
-        
+
             mmap_labels_pth =\
                 self.init_mmap_file_pth(datasplit,
                                         "labels")
@@ -166,7 +169,12 @@ class SigMFDataMMapper(object):
             write_idx = 0
 
             for file_prefix in self.datasplit_idx[datasplit].keys():
-                
+
+
+                for key in self.datafile_prefix_label_map.copy(): 
+                    new_key = os.path.basename(key)
+                    self.datafile_prefix_label_map[new_key] = self.datafile_prefix_label_map[key]
+
                 device_label = self.datafile_prefix_label_map[file_prefix]
                 device_nsamples = len(self.datasplit_idx[datasplit][file_prefix])
 
@@ -181,6 +189,11 @@ class SigMFDataMMapper(object):
                   f"{datasplit} data ....")
 
             total_datasplit_samples = self.total_datasplit_nsamples[datasplit]
+            
+            print(f' Current dataset split total number of samples: {total_datasplit_samples}\n')
+
+            print(f'on datasplit {datasplit}')
+
             mmap_data_pth = self.init_mmap_file_pth(datasplit, "data")
 
             h_data = np.memmap(mmap_data_pth,
@@ -190,12 +203,19 @@ class SigMFDataMMapper(object):
 
             write_idx = 0
 
-            for file_prefix in tqdm(self.datafile_prefix_label_map.keys()):
+
+            all_sigmf_data_files = [f for f in os.listdir(self.parameters['datadir_pth']) if f.endswith('.sigmf-data')]
+            all_sigmf_data_files = [os.path.join(self.parameters['datadir_pth'], file) for file in all_sigmf_data_files]
+
+            for file_prefix in tqdm(all_sigmf_data_files): # enumerate(self.datafile_prefix_label_map.keys()):
+
+                file_prefix = os.path.basename(file_prefix)
+                file_prefix = os.path.splitext(file_prefix)[0]
 
                 rawdata_file_pth =\
                     os.path.join(self.parameters["datadir_pth"],
                                  file_prefix + ".sigmf-data")
-    
+
                 with open(rawdata_file_pth, 'rb') as f: 
                     bytes_data = f.read()
                     device_data = np.frombuffer(bytes_data, dtype = np.complex128)
@@ -213,6 +233,7 @@ class SigMFDataMMapper(object):
 
                 device_data_q =\
                     np.imag(device_data).reshape((device_datasplit_nsamples, 1, 128))
+        
 
                 h_data[write_idx:(write_idx + device_datasplit_nsamples), :, :] =\
                     np.concatenate([device_data_i,

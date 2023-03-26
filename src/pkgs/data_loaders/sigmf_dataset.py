@@ -4,7 +4,10 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import Dataset, DataLoader
-from memory_mapper import SigMFDataMMapper
+try:
+    from memory_mapper import SigMFDataMMapper
+except: 
+    from pkgs.data_loaders.memory_mapper import *
 
 class SigMFDataset(Dataset):
     

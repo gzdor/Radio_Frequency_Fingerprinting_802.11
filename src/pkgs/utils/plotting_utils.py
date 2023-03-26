@@ -61,7 +61,7 @@ def create_spectrogram(iq: np.ndarray, fs: float, fc: float) -> None:
 
 
 # Define power spectral density (psd) plotting function 
-def create_df(iq: np.ndarray, fft_size: int, fs: float) -> None:
+def create_dft(iq: np.ndarray, fft_size: int, fs: float) -> None:
     """
     @brief plots discrete Fourier transform of input sequence 
 
