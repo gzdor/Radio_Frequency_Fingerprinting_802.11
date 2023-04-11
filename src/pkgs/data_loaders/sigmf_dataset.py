@@ -4,10 +4,11 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import Dataset, DataLoader
+
 try:
     from memory_mapper import SigMFDataMMapper
 except: 
-    from pkgs.data_loaders.memory_mapper import *
+    from pkgs.data_loaders.memory_mapper import SigMFDataMMapper
 
 class SigMFDataset(Dataset):
     
@@ -16,21 +17,8 @@ class SigMFDataset(Dataset):
                  mmapper,
                  transform=None):
 
-        total_datasplit_samples =\
-            mmapper.total_datasplit_nsamples[datasplit]
-
-        self.h_labels =\
-            np.memmap(mmapper.init_mmap_file_pth(datasplit, "labels"),
-                      dtype=np.int32,
-                      mode="r",
-                      shape=(total_datasplit_samples, 1))
-        
-        self.h_data =\
-            np.memmap(mmapper.init_mmap_file_pth(datasplit, "data"),
-                      dtype=np.float32,
-                      mode="r",
-                      shape=(total_datasplit_samples, 2, 128))
-        
+        self.h_labels = mmapper.get_h_labels(datasplit, "r")
+        self.h_data = mmapper.get_h_data(datasplit, "r")
         self.transform = transform
         
     def __len__(self):
@@ -47,7 +35,9 @@ class SigMFDataset(Dataset):
         sample_data = torch.from_numpy(sample_data)
         sample_label = torch.from_numpy(self.h_labels[idx].copy())
 
-        return sample_data, sample_label
+        # https://discuss.pytorch.org/t/
+        #     runtimeerror-multi-target-not-supported-newbie/10216
+        return sample_data, sample_label.long()
     
 
 class IQDataAugmenter(object):
@@ -101,11 +91,14 @@ class SigMFDataModule(pl.LightningDataModule):
     def __init__(self, parameters):
         
         self.mmapper = SigMFDataMMapper(parameters)
-        self.batch_size = parameters.get("batch_size", 1024)
-        self.num_workers = parameters.get("num_workers", 0)
+
+        self.batch_size = parameters.get("batch_size", 512)
+        self.num_workers = parameters.get("num_workers", 8)
 
     def setup(self, stage: str):
         
+        self.mmapper.map()
+
         self.sigmf_training =\
             SigMFDataset("training",
                          self.mmapper,
@@ -116,11 +109,13 @@ class SigMFDataModule(pl.LightningDataModule):
         
         self.sigmf_test = SigMFDataset("test", self.mmapper)
         
-    def train_dataloader(self):
+    def train_dataloader(self,
+                         shuffle=True):
+
         return DataLoader(self.sigmf_training,
                           batch_size=self.batch_size,
                           num_workers=self.num_workers,
-                          shuffle=True,
+                          shuffle=shuffle,
                           pin_memory=True)
     
     def val_dataloader(self):
