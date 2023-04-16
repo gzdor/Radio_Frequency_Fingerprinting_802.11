@@ -8,7 +8,7 @@ from torch.utils.data import Dataset, DataLoader
 try:
     from memory_mapper import SigMFDataMMapper
 except: 
-    from pkgs.data_loaders.memory_mapper import SigMFDataMMapper
+    from pkgs.dataset.memory_mapper import SigMFDataMMapper
 
 class SigMFDataset(Dataset):
     

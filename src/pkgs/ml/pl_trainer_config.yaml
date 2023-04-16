@@ -1,0 +1,29 @@
+# """
+# #++++++++++++++++++++++++++++++++++++++++++++++
+
+#     Project: Part of final project for Georgia Tech Institute of Technology course DL, CS 7643. 
+
+#     Totality of this code is non-proprietary and may be used at will. 
+
+# #++++++++++++++++++++++++++++++++++++++++++++++
+
+
+# Description: 
+
+# @brief Defines PyTorch Lightning trainer configuration parameter values
+
+# @author: Greg Zdor (gzdor@icloud.com)
+
+# @date Date_Of_Creation: 4/16/2023 
+
+# @date Last_Modification 4/16/2023 
+
+# No Copyright - use at will
+
+# """
+
+epochs: 2 
+
+devices: -1 # Uses all GPUs
+
+accelerator: "gpu"
