@@ -22,8 +22,10 @@
 
 # """
 
-epochs: 2 
+epochs: 50 
 
-devices: -1 # Uses all GPUs
+devices: "auto" # -1 # Uses all GPUs
 
-accelerator: "gpu"
+accelerator: "auto" # "gpu"
+
+strategy: "auto"

@@ -23,12 +23,15 @@ No Copyright - use at will
 
 """
 
+import ray 
+from ray import tune 
+
 
 def lightning_vanilla_cnn_classifier_cfg(): 
 
     cfg = {
 
-        "num_classes"                 :        32, 
+        "num_classes"                 :        16, 
         "vector_len"                  :        128, # length in time of input signal sequence
         "n_features"                  :        2, # I and Q signal dimensions 
         "max_pool_kernel_size"        :        2, 
@@ -63,7 +66,7 @@ def lightning_tunable_cnn_classifier_cfg():
 
     cfg = {
 
-        "num_classes"                 :        32, 
+        "num_classes"                 :        16, 
         "vector_len"                  :        128, # length in time of input signal sequence
         "n_features"                  :        2, # I and Q signal dimensions 
         "max_pool_kernel_size"        :        2, 
@@ -86,8 +89,8 @@ def lightning_tunable_cnn_classifier_cfg():
             {
                 "dense_1_hidden_size" :        128, 
                 "dense_2_hidden_size" :        128, 
-                "dense_1_dropout"     :        0.2, 
-                "dense_2_dropout"     :        0.2, 
+                "dense_1_dropout"     :        tune.uniform(0.0, 0.75), 
+                "dense_2_dropout"     :        tune.uniform(0.0, 0.75), 
             },
         "last_dense_layer_size"       :        64,
     }

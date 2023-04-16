@@ -23,4 +23,18 @@
 # """
 
 
-use_hyper_param_tuning: False 
+use_hyper_parameter_tuning: False
+
+# define hyper parameter tuning parameters 
+
+n_tuning_trials: 2 
+
+metric: "loss" # the metric to optimize in hyper parameter tuning
+
+mode: "min" # whether to maximize or minimize the chosen hyper parameter tuning metric (maximize acc, minimize loss)
+
+grace_period: 1 # number of epochs to allow model to continue training during which "metric" does not improve 
+
+cpus_per_trial: 6 # number of CPUs per trial 
+
+gpus_per_trial: 8 # number of GPUs per trial

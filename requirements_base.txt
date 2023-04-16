@@ -1,13 +1,16 @@
 joblib==1.2.0
 matplotlib==3.7.1
-numpy==1.17.0
+numpy==1.24.2
 pandas==2.0.0
-pytorch_lightning==2.0.1.post0
+pytorch_lightning==2.0.0
+PyWavelets==1.4.1
+PyYAML==5.4.1
 PyYAML==6.0
+ray==2.3.1
 scikit_learn==1.2.2
 torch==2.0.0
 torchmetrics==0.11.4
-tqdm==4.64.0
+tqdm==4.65.0
 
 
 # Generated via:  <python -m  pipreqs.pipreqs --encoding utf-8  .> to avoid including non top level dependencies

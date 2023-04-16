@@ -58,6 +58,9 @@ class LightningCNNClassifier(pl.LightningModule):
             stride = cfg['conv_layers']['conv_2_n_stride'], 
             padding = cfg['conv_layers']['conv_2_padding']
             )
+        
+        self.batch_norm1 = nn.BatchNorm1d(cfg['conv_layers']['conv_1_n_filters'])
+        self.batch_norm2 = nn.BatchNorm1d(cfg['conv_layers']['conv_2_n_filters'])
 
         self.conv_activation = nn.ReLU()
 
@@ -114,11 +117,13 @@ class LightningCNNClassifier(pl.LightningModule):
 
         # Convolution layers
         x = self.conv_1(x)
+        x = self.batch_norm1(x)
         x = self.conv_activation(x)
         x = self.maxpool(x)
 
         if self.cfg['n_conv_layers'] > 1: 
             x = self.conv_2(x)
+            x = self.batch_norm2(x)
             x = self.conv_activation(x)
             x = self.maxpool(x)
 
