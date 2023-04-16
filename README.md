@@ -1,14 +1,21 @@
-![my_image](my_image.png)
-
 # Deep Learning for Identification of RF Emitters Based on Transmitter Artifacts
 
 ### How to use this code base 
 
-    To get started, install the required Python packages from the requirements_base.txt.
+    To get started, install the required Python packages from the requirements_base.txt. This can be done with the following steps. 
 
-#### Running neural net training 
+        conda create --name rf-fingerprinting-proj-pytorch-cs7643 python=3.10.9
+        conda activate rf-fingerprinting-proj-pytorch-cs7643
+        pip install -r requirements-base.txt
 
-#### Running neural net evaluation 
+#### Running neural net training and evaluation 
+
+    Training and evaluation is executed via running the following from the src/tools/ml_train folder. 
+
+        python3 model_trainer.py -cfg ../../../configs/rf_fingerprinting_cfg.yaml
+
+    To change training parameters such as number of epochs, learning rate, whether to use hyper parameter 
+    tuning or more, modify the contents of /configs/rf_fingerprinting_cfg.yaml. 
 
 ### About the models
 
