@@ -31,12 +31,14 @@ import os
 import sys
 import time 
 import yaml
+import shutil
 import string 
 import random
 import argparse
 from datetime import datetime
 
 # ML imports 
+import torchsummary
 import pytorch_lightning as pl
 
 # Hyper parameter tuning imports 
@@ -103,7 +105,7 @@ def setup_trainer(cfg:dict) -> pl.Trainer:
     # Define Lightning callbacks
     lightning_callbacks = [ 
         pl.callbacks.ModelCheckpoint(monitor = "validation_loss", mode = "min"), 
-        pl.callbacks.EarlyStopping(monitor='validation_loss', patience=10),]
+        pl.callbacks.EarlyStopping(monitor='validation_loss', patience=cfg['lightning_patience']),]
     
     # Check if to use Ray Tune hyper parameter tuning 
     if "use_hyper_parameter_tuning" in trainer_cfg.keys():
@@ -113,8 +115,7 @@ def setup_trainer(cfg:dict) -> pl.Trainer:
             lightning_callbacks.append(ray_tune_callback)
 
     # Define loggers 
-    exper_name = "experiment_" + "{:%Y_%m_%d_%H_%M_%S_%MS}".format(datetime.now())
-    logger = pl.loggers.CSVLogger("lightning_logs", name = exper_name)
+    logger = pl.loggers.CSVLogger("lightning_logs", name = trainer_cfg['exper_name'])
 
     n_epochs = cfg['epochs']
     devices = cfg['devices']
@@ -150,6 +151,8 @@ def run(
     
     trainer = setup_trainer(trainer_cfg)
     
+    torchsummary.summary(model.cuda(), (2, 128))
+    
     # execute training 
     n_epochs = trainer_cfg['epochs']
     t_start = time.time()
@@ -158,17 +161,22 @@ def run(
     print(
         f'\n\nTotal training time was {tr_t_sec} seconds, @ {str(tr_t_sec/n_epochs)} seconds per epoch.\n')
 
+    # execute testing 
+    test_trainer = pl.Trainer(logger = False)
+    test_results = test_trainer.test(model, dataset, verbose = True)
+    print(f'\n\n test results are:  \n\n {test_results}\n\n')
+    
     experiment_path = os.path.join(os.getcwd(), trainer._loggers[0].log_dir)
     current_logs_csv = os.path.join(os.getcwd(), experiment_path, "metrics.csv")
     print(f'Experiment path:  {experiment_path}\n\n')
     
-    # execute testing 
-    #TODO #BUG resolve how Lightning logger overrides training logs with test logs results
-    # test_logger_dest_path = os.path.join(os.path.dirname(experiment_path), 'testing')
-    # test_logger = pl.loggers.CSVLogger("lightning_logs", name = test_logger_dest_path)
-    # test_trainer = pl.Trainer(test_logger)
-    # test_results = test_trainer.test(model = model, datamodule = dataset, verbose = True, logger = test_logger)
-    # print(f'\n\n test results are:  \n\n {test_results}\n\n')
+    # make copy of training history data - fixes trainer overwrites metrics.csv with testing results
+    if os.path.isfile(current_logs_csv):
+        dest_csv = os.path.join(os.getcwd(), experiment_path, "train_val_metrics.csv")
+        shutil.copy(
+            current_logs_csv, 
+            dest_csv, 
+        )
     
     # execute training results analysis 
     model_evaluation(current_logs_csv, experiment_path, n_epochs)
@@ -189,6 +197,8 @@ def tunable_trainer(
     
     trainer_cfg['use_hyper_parameter_tuning'] = True
     trainer = setup_trainer(trainer_cfg)
+    
+    torchsummary.summary(model.cuda(), (2, 128))
     
     trainer.fit(model, dataset)
     
@@ -306,6 +316,10 @@ if __name__=='__main__':
         )
     
     else:
+        
+        # Define output experiment path 
+        exper_name = "experiment_" + "{:%Y_%m_%d_%H_%M_%S_%MS}".format(datetime.now())
+        trainer_cfg['exper_name'] = exper_name
     
         # Run default, vanilla training and evaluation 
         experiment_path = run(

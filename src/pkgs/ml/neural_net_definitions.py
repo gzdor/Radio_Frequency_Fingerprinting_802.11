@@ -43,6 +43,10 @@ class LightningCNNClassifier(pl.LightningModule):
 
         super(LightningCNNClassifier, self).__init__()
 
+        self.residual_block1 = ResidualBlock(cfg['conv_layers']['conv_2_n_filters'], cfg['conv_layers']['conv_2_n_filters'])
+        
+        self.residual_block2 = ResidualBlock(cfg['conv_layers']['conv_2_n_filters'], cfg['conv_layers']['conv_2_n_filters'])
+
         self.conv_1 = nn.Conv1d(
             cfg['n_features'],
             cfg['conv_layers']['conv_1_n_filters'],
@@ -66,7 +70,7 @@ class LightningCNNClassifier(pl.LightningModule):
 
         self.maxpool = nn.MaxPool1d(cfg['max_pool_kernel_size'], cfg['max_pool_stride']) 
 
-        dense_layer_input_size = 2016 #TODO parameterize this - remove hardcoded value
+        dense_layer_input_size = 16256 
 
         self.dense_1 =  nn.Linear(dense_layer_input_size,
                                 cfg['dense_layers']['dense_1_hidden_size'])
@@ -86,6 +90,9 @@ class LightningCNNClassifier(pl.LightningModule):
         
         self.loss = nn.CrossEntropyLoss()
         
+        self.lr = 1e-3 
+        self.momentum = 0.9
+        
         self.tr_batch_loss = [] 
         self.val_batch_loss = [] 
         self.test_batch_loss = [] 
@@ -94,16 +101,6 @@ class LightningCNNClassifier(pl.LightningModule):
         self.val_batch_acc = [] 
         self.test_batch_acc = []
         
-        self.tr_acc_history = [] 
-        self.val_acc_history = [] 
-        
-        self.tr_loss_history = [] 
-        self.val_loss_history = [] 
-        
-        self.test_acc_history = [] 
-        self.test_loss_history = [] 
-
-
     def forward(self, x):
         """"
         @brief executes computation graph forward pass 
@@ -125,7 +122,10 @@ class LightningCNNClassifier(pl.LightningModule):
             x = self.conv_2(x)
             x = self.batch_norm2(x)
             x = self.conv_activation(x)
-            x = self.maxpool(x)
+            
+            # Residual blocks 
+            x = self.residual_block1(x)
+            x = self.residual_block2(x)
 
         x = torch.flatten(x, 1) 
 
@@ -143,13 +143,16 @@ class LightningCNNClassifier(pl.LightningModule):
 
 
     def configure_optimizers(self): 
-        optimizer = torch.optim.Adam(self.parameters(), lr  = 1e-3) #TODO 
+        optimizer = torch.optim.SGD(params = self.parameters(),
+            lr = self.lr,
+            momentum = self.momentum,
+            ) #TODO use ADAM torch.optim.Adam(self.parameters(), lr  = 1e-3) 
         return optimizer 
 
 
     def training_step(self, train_batch, batch_idx):
         x, y = train_batch
-        logits = self.forward(x)        
+        logits = self(x)        
         loss = self.loss(logits, y.squeeze())
         probabilities = self.get_softmax(logits)
         acc = self._compute_accuracy(y, probabilities)
@@ -165,7 +168,7 @@ class LightningCNNClassifier(pl.LightningModule):
 
     def validation_step(self, val_batch, batch_idx):
         x, y = val_batch
-        logits = self.forward(x)
+        logits = self(x)
         probabilities = self.get_softmax(logits)
         loss = self.loss(logits, y.squeeze())
         acc = self._compute_accuracy(y, probabilities)
@@ -181,7 +184,7 @@ class LightningCNNClassifier(pl.LightningModule):
     
     def test_step(self, val_batch, batch_idx): 
         x, y = val_batch
-        logits = self.forward(x)        
+        logits = self(x)        
         loss = self.loss(logits, y.squeeze())
         probabilities = self.get_softmax(logits)
         acc = self._compute_accuracy(y, probabilities)
@@ -197,7 +200,7 @@ class LightningCNNClassifier(pl.LightningModule):
     
     def predict_step(self, batch, batch_idx): 
         x, y = batch
-        logits = self.forward(x)
+        logits = self(x)
         probabilities = self.get_softmax(logits)
         
         return probabilities, y
@@ -212,9 +215,6 @@ class LightningCNNClassifier(pl.LightningModule):
         self.log("avg_tr_acc", avg_tr_acc, sync_dist=True)
         self.log("avg_tr_loss", avg_tr_loss, sync_dist=True)
         
-        self.tr_acc_history.append(avg_tr_acc.cpu().detach().numpy())
-        self.tr_loss_history.append(avg_tr_loss.cpu().detach().numpy())
-        
         self.tr_batch_acc.clear()
         self.tr_batch_loss.clear()
     
@@ -228,9 +228,6 @@ class LightningCNNClassifier(pl.LightningModule):
         self.log("avg_val_acc", avg_val_acc, sync_dist=True)
         self.log("avg_val_loss", avg_val_loss, sync_dist=True)
         
-        self.val_acc_history.append(avg_val_acc.cpu().detach().numpy())
-        self.val_loss_history.append(avg_val_loss.cpu().detach().numpy())
-        
         self.val_batch_acc.clear()
         self.val_batch_loss.clear()
     
@@ -243,10 +240,6 @@ class LightningCNNClassifier(pl.LightningModule):
         
         self.log("avg_test_acc", avg_test_acc, sync_dist=True)
         self.log("avg_test_loss", avg_test_loss, sync_dist=True)
-        
-        
-        self.test_acc_history.append(avg_test_acc)
-        self.test_loss_history.append(avg_test_loss)
         
         self.test_batch_acc.clear()
         self.test_batch_loss.clear()
@@ -262,3 +255,30 @@ class LightningCNNClassifier(pl.LightningModule):
         )
         
         return acc 
+    
+    
+class ResidualBlock(nn.Module):
+    
+    def __init__(self, in_channels, out_channels, stride = 1):
+        
+        super(ResidualBlock, self).__init__()
+        
+        self.conv1 = nn.Sequential(
+                        nn.Conv1d(in_channels, out_channels, kernel_size = 3, stride = stride, padding = 1),
+                        nn.BatchNorm1d(out_channels),
+                        nn.ReLU())
+        
+        self.conv2 = nn.Sequential(
+                        nn.Conv1d(out_channels, out_channels, kernel_size = 3, stride = 1, padding = 1),
+                        nn.BatchNorm1d(out_channels))
+        
+        self.relu = nn.ReLU()
+        self.out_channels = out_channels
+        
+    def forward(self, x):
+        residual = x
+        out = self.conv1(x)
+        out = self.conv2(out)
+        out += residual
+        out = self.relu(out)
+        return out

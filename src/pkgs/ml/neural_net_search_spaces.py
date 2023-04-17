@@ -39,11 +39,11 @@ def lightning_vanilla_cnn_classifier_cfg():
         "n_conv_layers"               :        2,
         "conv_layers"                 :  
             {
-                "conv_1_n_filters"    :        128, 
+                "conv_1_n_filters"    :        256, 
                 "conv_1_n_stride"     :        1, 
                 "conv_1_kernal_size"  :        3,
                 "conv_1_padding"      :        1, 
-                "conv_2_n_filters"    :        16, 
+                "conv_2_n_filters"    :        128, 
                 "conv_2_n_stride"     :        1, 
                 "conv_2_kernal_size"  :        3,
                 "conv_2_padding"      :        1, 
@@ -52,8 +52,8 @@ def lightning_vanilla_cnn_classifier_cfg():
         "n_dense_layers"              :        2, 
         "dense_layers"                :
             {
-                "dense_1_hidden_size" :        128, 
-                "dense_2_hidden_size" :        128, 
+                "dense_1_hidden_size" :        1024, 
+                "dense_2_hidden_size" :        1024, 
                 "dense_1_dropout"     :        0.2, 
                 "dense_2_dropout"     :        0.2, 
             },
@@ -74,11 +74,11 @@ def lightning_tunable_cnn_classifier_cfg():
         "n_conv_layers"               :        2,
         "conv_layers"                 :  
             {
-                "conv_1_n_filters"    :        128, 
+                "conv_1_n_filters"    :        tune.randint(64, 512), 
                 "conv_1_n_stride"     :        1, 
                 "conv_1_kernal_size"  :        3,
                 "conv_1_padding"      :        1, 
-                "conv_2_n_filters"    :        16, 
+                "conv_2_n_filters"    :        tune.randint(64, 256), 
                 "conv_2_n_stride"     :        1, 
                 "conv_2_kernal_size"  :        3,
                 "conv_2_padding"      :        1, 
@@ -87,12 +87,19 @@ def lightning_tunable_cnn_classifier_cfg():
         "n_dense_layers"              :        2, 
         "dense_layers"                :
             {
-                "dense_1_hidden_size" :        128, 
-                "dense_2_hidden_size" :        128, 
+                "dense_1_hidden_size" :        tune.randint(512, 2048), 
+                "dense_2_hidden_size" :        tune.randint(128, 512), 
                 "dense_1_dropout"     :        tune.uniform(0.0, 0.75), 
                 "dense_2_dropout"     :        tune.uniform(0.0, 0.75), 
             },
-        "last_dense_layer_size"       :        64,
+        "last_dense_layer_size"       :        tune.randint(32, 128),
+        "training_parameters"         :
+            {
+                "momentum"            :        tune.uniform(0.85, 0.99), 
+                "learning_rate"       :        tune.uniform(1e-6, 1e-2), 
+                "optimizer"           :        tune.choice(["Adam", "SGD", "AdaGrad"]), 
+         }
     }
+    
     
     return cfg 
