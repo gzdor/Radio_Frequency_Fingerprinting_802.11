@@ -1,7 +1,7 @@
 # runid: 'run1_initial'
 
 # Dataset parameters 
-batch_size: 1024 
+batch_size: 512 
 
 # Training parameters
 num_workers: 6 

@@ -1,6 +1,7 @@
 
 import os 
 import sys 
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 import torch
@@ -40,8 +41,8 @@ if __name__=='__main__':
     print("Using device: %s" % device)
 
     models = {
-        'OracleClassifier' : OracleClassifier(),
         'CNNClassifier' : CNNClassifier(),
+        'OracleClassifier' : OracleClassifier(),
         'EfficientNetTL': EfficientNetTL(),
         'ResNet50TL' : ResNet50TL()
     }
@@ -53,7 +54,8 @@ if __name__=='__main__':
         print(f"{i}/{total_count} - {model_name}")
         print("------------------------------")
         
-        save_dir = os.path.join(os.getcwd(), model_name + "_logs")
+        experiment_name = model_name + "_" + "{:%Y_%m_%d_%H_%M_%S_%MS}".format(datetime.now())
+        save_dir = os.path.join(os.getcwd(), experiment_name)
         
         if not os.path.isdir(save_dir): 
             os.mkdir(save_dir)
