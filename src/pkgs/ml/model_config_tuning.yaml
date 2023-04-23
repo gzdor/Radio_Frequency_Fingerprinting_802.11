@@ -1,0 +1,40 @@
+# """
+# #++++++++++++++++++++++++++++++++++++++++++++++
+
+#     Project: Part of final project for Georgia Tech Institute of Technology course DL, CS 7643. 
+
+#     Totality of this code is non-proprietary and may be used at will. 
+
+# #++++++++++++++++++++++++++++++++++++++++++++++
+
+
+# Description: 
+
+# @brief Defines neural net configuration parameter values
+
+# @author: Greg Zdor (gzdor@icloud.com)
+
+# @date Date_Of_Creation: 4/16/2023 
+
+# @date Last_Modification 4/16/2023 
+
+# No Copyright - use at will
+
+# """
+
+
+use_hyper_parameter_tuning: True
+
+# define hyper parameter tuning parameters 
+
+n_tuning_trials: 100 
+
+metric: "loss" # the metric to optimize in hyper parameter tuning
+
+mode: "min" # whether to maximize or minimize the chosen hyper parameter tuning metric (maximize acc, minimize loss)
+
+grace_period: 2 # number of epochs to allow model to continue training during which "metric" does not improve 
+
+cpus_per_trial: 2 # number of CPUs per trial 
+
+gpus_per_trial: 1 # number of GPUs per trial

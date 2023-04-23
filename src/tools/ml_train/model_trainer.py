@@ -20,7 +20,7 @@
 
 # @date Date_Of_Creation: 4/16/2023 
 
-# @date Last_Modification 4/16/2023 
+# @date Last_Modification 4/24/2023 
 
 # No Copyright - use at will
 
@@ -57,8 +57,9 @@ from pkgs.dataset.oracle_lightning_dataset import LightningOracleDataset
 from pkgs.ml.neural_net_search_spaces import (
     lightning_vanilla_cnn_classifier_cfg,
     lightning_tunable_cnn_classifier_cfg,
+    variable_layers_cnn_cfg, 
 )
-from pkgs.ml.neural_net_definitions import LightningCNNClassifier
+from pkgs.ml.neural_net_definitions import LightningCNNClassifier, VariableLayersCNN
 from pkgs.ml.model_evaluation_analysis import model_evaluation
 
 
@@ -91,13 +92,13 @@ def setup_dataset(cfg:dict) -> pl.LightningDataModule:
 def setup_model(cfg:dict) -> pl.LightningModule:
     
     if cfg['use_hyper_parameter_tuning']:
-        # Use passed in hyper parameter tuning search space parameters 
-        pass 
+        # Get variable parameters, layers model 
+        model = VariableLayersCNN(cfg)
     else:
         # Get default, fixed-valued model training and architecture parameters 
-        cfg = lightning_vanilla_cnn_classifier_cfg()
+        model = LightningCNNClassifier(cfg)  
     
-    return LightningCNNClassifier(cfg)  
+    return model
 
 
 def setup_trainer(cfg:dict) -> pl.Trainer:    
@@ -191,7 +192,7 @@ def tunable_trainer(
     ): 
     
     dataset = setup_dataset(dataset_cfg)
-    
+
     config['use_hyper_parameter_tuning'] = True
     model = setup_model(config)
     
@@ -209,7 +210,7 @@ def run_tuning(
     trainer_cfg: dict,
     ): 
     
-    search_space = lightning_tunable_cnn_classifier_cfg()
+    search_space = variable_layers_cnn_cfg()
     
     # Distributed Asynchronous Hyper-parameter Optimizer (HyperOptSearch)
     # for efficient hyperpameter value down selection  
@@ -307,7 +308,11 @@ if __name__=='__main__':
     # Check if to run default, vanilla model with fixed parameters or to do hyper parameter tuning with 1 or more models
     
     if model_cfg['use_hyper_parameter_tuning']:
-        
+         
+        # Define output experiment path 
+        exper_name = "experiment_" + "{:%Y_%m_%d_%H_%M_%S_%MS}".format(datetime.now())
+        trainer_cfg['exper_name'] = exper_name
+
         # Run Ray Tune - based hyper parameter tuning - based training 
         experiment_path = run_tuning(
             dataset_cfg,

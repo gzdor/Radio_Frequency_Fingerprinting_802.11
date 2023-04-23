@@ -1,10 +1,10 @@
 # runid: 'run1_initial'
 
 # Dataset parameters 
-batch_size: 1024 
+batch_size: 512 
 
 # Training parameters
-num_workers: 6 
+num_workers: 10 
 
 # Full path to raw data
 # datadir_pth: '/mnt/u/ga_tech/cs7643_DL_rf_fingerprint_final_project/neu_m044q5210/KRI-16Devices-RawData'
@@ -15,7 +15,7 @@ datadir_pth: '/MLSR_Shared_Folder/gzdor/cs7643_pytorch/rf_fingerprinting_project
 base_mmapdir_pth:  '/MLSR_Shared_Folder/gzdor/cs7643_pytorch/rf_fingerprinting_project/data/MemMapData'
 
 # Memory mapped data experiment identifier
-experimentid: multiple_distances_14_20_ft
+experimentid: multiple_distances_14_20_ft_batch_size512
 
 # Need to normalize the average envelope when processing data
 # across multiple distances (RF path loss is a function of

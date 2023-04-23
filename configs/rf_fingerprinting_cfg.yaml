@@ -23,8 +23,8 @@
 # """
 
 
-dataset_parameters:            "../src/pkgs/dataset/memory_mapper.yml"
+dataset_parameters:            !include "../src/pkgs/dataset/memory_mapper.yml"
 
-model_parameters:              "../src/pkgs/ml/model_config.yaml"
+model_parameters:              !include "../src/pkgs/ml/model_config.yaml"
 
-lightning_trainer_parameters:   "../src/pkgs/ml/pl_trainer_config.yaml"
+lightning_trainer_parameters:  !include "../src/pkgs/ml/pl_trainer_config.yaml"

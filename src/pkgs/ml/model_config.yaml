@@ -23,7 +23,7 @@
 # """
 
 
-use_hyper_parameter_tuning: False
+use_hyper_parameter_tuning: True
 
 # define hyper parameter tuning parameters 
 
@@ -37,4 +37,4 @@ grace_period: 1 # number of epochs to allow model to continue training during wh
 
 cpus_per_trial: 6 # number of CPUs per trial 
 
-gpus_per_trial: 8 # number of GPUs per trial
+gpus_per_trial: 1 # number of GPUs per trial
