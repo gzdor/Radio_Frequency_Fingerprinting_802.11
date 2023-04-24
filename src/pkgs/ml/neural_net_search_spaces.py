@@ -39,11 +39,11 @@ def lightning_vanilla_cnn_classifier_cfg():
         "n_conv_layers"               :        2,
         "conv_layers"                 :  
             {
-                "conv_1_n_filters"    :        56, 
+                "conv_1_n_filters"    :        256, 
                 "conv_1_n_stride"     :        1, 
                 "conv_1_kernal_size"  :        3,
                 "conv_1_padding"      :        1, 
-                "conv_2_n_filters"    :        24, 
+                "conv_2_n_filters"    :        128, 
                 "conv_2_n_stride"     :        1, 
                 "conv_2_kernal_size"  :        3,
                 "conv_2_padding"      :        1, 

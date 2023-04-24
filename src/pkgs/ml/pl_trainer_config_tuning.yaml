@@ -24,10 +24,12 @@
 
 epochs: 20 # 100 # 50 
 
-devices: 0, # "auto" # -1 # Uses all GPUs
+devices: "auto" # -1 # Uses all GPUs
 
 accelerator: "auto" # "gpu"
 
 strategy: "auto"
 
 lightning_patience: 2 # the number of epochs to persist training while validation loss does not keep dropping 
+
+enable_progress_bar: False

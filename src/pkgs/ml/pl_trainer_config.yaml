@@ -31,3 +31,5 @@ accelerator: "auto" # "gpu"
 strategy: "auto"
 
 lightning_patience: 10 # the number of epochs to persist training while validation loss does not keep dropping 
+
+enable_progress_bar: True

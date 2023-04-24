@@ -72,7 +72,7 @@ class LightningCNNClassifier(pl.LightningModule):
 
         self.maxpool = nn.MaxPool1d(cfg['max_pool_kernel_size'], cfg['max_pool_stride']) 
 
-        dense_layer_input_size = 3048 
+        dense_layer_input_size = 16256 
 
         self.dense_1 =  nn.Linear(dense_layer_input_size,
                                 cfg['dense_layers']['dense_1_hidden_size'])

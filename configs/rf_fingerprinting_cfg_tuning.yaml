@@ -28,3 +28,5 @@ dataset_parameters:            !include "../src/pkgs/dataset/memory_mapper_tunin
 model_parameters:              !include "../src/pkgs/ml/model_config_tuning.yaml"
 
 lightning_trainer_parameters:  !include "../src/pkgs/ml/pl_trainer_config_tuning.yaml"
+
+# Run via:  python3 model_trainer.py  -cfg ../../../configs/rf_fingerprinting_cfg_tuning.yaml 

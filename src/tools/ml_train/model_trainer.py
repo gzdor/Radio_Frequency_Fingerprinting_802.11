@@ -122,10 +122,11 @@ def setup_trainer(cfg:dict) -> pl.Trainer:
     devices = cfg['devices']
     accelerator = cfg['accelerator']
     strategy = cfg['strategy']
+    enable_progress_bar = cfg['enable_progress_bar']
 
     # Configure trainer
     trainer = pl.Trainer(
-        enable_progress_bar          = True, 
+        enable_progress_bar          = enable_progress_bar, 
         enable_checkpointing         = True, 
         enable_model_summary         = True,
         callbacks                    = lightning_callbacks, 
@@ -336,3 +337,20 @@ if __name__=='__main__':
     print(f'Current experiment results are under \n\n{experiment_path}')
     
     print(f"\n\nTotal run time was: \n\n {str(time.time() - t_start)} seconds\n\nProgram ended.")
+    
+    
+    
+    
+    
+    
+    
+    
+#       File "/MLSR_Shared_Folder/gzdor/Miniconda_Install/envs/rf-fingerprinting-proj-pytorch-cs7643/lib/python3.10/site-packages/ray/tune/execution/trial_runner.py", line 1047, in _on_training_result
+#     self._process_trial_results(trial, result)
+#   File "/MLSR_Shared_Folder/gzdor/Miniconda_Install/envs/rf-fingerprinting-proj-pytorch-cs7643/lib/python3.10/site-packages/ray/tune/execution/trial_runner.py", line 1130, in _process_trial_results
+#     decision = self._process_trial_result(trial, result)
+#   File "/MLSR_Shared_Folder/gzdor/Miniconda_Install/envs/rf-fingerprinting-proj-pytorch-cs7643/lib/python3.10/site-packages/ray/tune/execution/trial_runner.py", line 1167, in _process_trial_result
+#     self._validate_result_metrics(flat_result)
+#   File "/MLSR_Shared_Folder/gzdor/Miniconda_Install/envs/rf-fingerprinting-proj-pytorch-cs7643/lib/python3.10/site-packages/ray/tune/execution/trial_runner.py", line 1263, in _validate_result_metrics
+#     raise ValueError(
+# # ValueError: Trial returned a result which did not include the specified metric(s) `loss` that `tune.TuneConfig()` expects. Make sure your calls to `tune.report()` include the metric, or set the TUNE_DISABLE_STRICT_METRIC_CHECKING environment variable to 1. Result: {'trial_id': 'af1fa306', 'experiment_id': '76cb6dd9c79e4fe6ab08995ecf8bb825', 'date': '2023-04-24_01-52-18', 'timestamp': 1682301138, 'pid': 35907, 'hostname': 'ash3-mlrd-nvidia01.lnx.boozallencsn.com', 'node_ip': '10.137.224.83', 'done': True, 'config/conv_layers': 4, 'config/dense_layers': 4, 'config/input_channels': 2, 'config/num_filters': (108, 75, 81, 48, 42), 'config/filter_size': (3, 3, 3, 3, 3), 'config/pool_size': 3, 'config/dense_layer_sizes': (476, 291, 216, 185, 108), 'config/input_size': 128, 'config/in_channels': 1, 'config/pool_stride': 1, 'config/dropout': 0.5221329751701351, 'config/num_classes': 16, 'config/learning_rate': 0.0011963725382409184, 'config/momentum': 0.9154664600997693}
