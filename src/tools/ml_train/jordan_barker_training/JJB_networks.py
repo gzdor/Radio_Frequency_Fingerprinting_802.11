@@ -260,7 +260,7 @@ class EfficientNetTL(pl.LightningModule):
         return self._step(batch, batch_idx, "train")
 
     def validation_step(self, batch, batch_idx):
-        return self._step(batch, batch_idx, "val")
+        return self._step(batch, batch_idx, "validation")
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
@@ -359,8 +359,10 @@ class ResNet50TL(pl.LightningModule):
         return self._step(batch, batch_idx, "train")
 
     def validation_step(self, batch, batch_idx):
-        return self._step(batch, batch_idx, "val")
+        return self._step(batch, batch_idx, "validation")
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
         return optimizer
+    
+# validation_loss

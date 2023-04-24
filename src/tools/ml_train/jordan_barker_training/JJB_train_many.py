@@ -41,8 +41,8 @@ if __name__=='__main__':
     print("Using device: %s" % device)
 
     models = {
-        'CNNClassifier' : CNNClassifier(),
-        'OracleClassifier' : OracleClassifier(),
+        # 'CNNClassifier' : CNNClassifier(),
+        # 'OracleClassifier' : OracleClassifier(),
         'EfficientNetTL': EfficientNetTL(),
         'ResNet50TL' : ResNet50TL()
     }
@@ -66,7 +66,7 @@ if __name__=='__main__':
 
         trainer = pl.Trainer(max_epochs=max_epochs,
                             logger=csv_logger,
-                            devices = [1], # the gpu at the second index
+                            devices = [7], # the gpu at the second index
                             callbacks = lightning_callbacks)
 
         curr_model = models[model]
