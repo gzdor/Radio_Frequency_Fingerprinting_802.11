@@ -1,5 +1,15 @@
 # Deep Learning for Identification of RF Emitters Based on Transmitter Artifacts
 
+### About this code base 
+
+This repository was created to do radio frequency (RF) emitter identification (classification) of Ettus software defined radios via neural networks in PyTorch Lightning. 
+
+Final project provides details and may be found in this repo under docs/TeamElectromagnetics!ProjectReport.pdf
+
+The dataset used here was released in conjunction with Northeastern University GENESYS Laboratory’s 2018 IEEE INFOCOM journal article “ORACLE: Optimized Radio clAssification through Convolutional Neural nEtworks”.
+
+The code defines several convolutional-based neural network architectures. A main training module is defined, and this module allows for training a single model or a hyper parameter tuning a large number of models in parallel via Ray Tune. Analysis Jupyter Notebooks are used to point to a specific model checkpoint, load the weights, and perform test dataset evaluation and plot corresponding confusion matrix results.  
+
 ### How to use this code base 
 
     To get started, install the required Python packages from the requirements_base.txt. This can be done with the following steps. 
@@ -17,12 +27,6 @@
     To change training parameters such as number of epochs, learning rate, whether to use hyper parameter 
     tuning or more, modify the contents of /configs/rf_fingerprinting_cfg.yaml. 
 
-### About the models
-
-#### Architecture diagrams 
-
-#### Architecture explanations and motivations 
-
 ### About the dataset 
 
     This WiFi signal classification dataset from Northeastern University's GENESYS Laboratory consists of raw IQ samples 
@@ -32,10 +36,12 @@
     samples per class, recorded open air at TX <--> RX separations ranging from 2 feet to 62 feet apart. Refer to the ORACLE d
     dataset link in the last section of this page for links to download the dataset.
 
-### About the dataset, in detail
-
 ### Links and resources 
 
     ORACLE dataset home page: https://genesys-lab.org/oracle 
-
-    This project was done in partial fulfillment of course requirements for https://omscs.gatech.edu/cs-7643-deep-learning, project "team Electromagnetics!". 
+    The dataset used for this project may be downloaded via the following: 
+        Demodulated IQ symbols (not used for this project):  wget -O demod_iq.zip https://repository.library.northeastern.edu/downloads/neu:m044q523j?datastream_id=content
+        Raw IQ (used for this project):  wget -O raw_iq.zip https://repository.library.northeastern.edu/downloads/neu:m044q5210?datastream_id=content
+    
+    
+This project was done in partial fulfillment of course requirements for https://omscs.gatech.edu/cs-7643-deep-learning, project "team Electromagnetics!", spring 2023. 
